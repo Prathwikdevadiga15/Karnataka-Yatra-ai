@@ -1,0 +1,17 @@
+.env
+.env*.local
+node_modules/
+frontend/node_modules/
+__pycache__/
+backend/**/__pycache__/
+dist/
+frontend/dist/
+.venv/
+backend/.venv/
+venv/
+.pytest_cache/
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+Thumbs.db
