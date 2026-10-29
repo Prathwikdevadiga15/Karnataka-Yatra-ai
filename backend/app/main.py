@@ -22,6 +22,8 @@ from app.api.v1.research import router as research_router
 from app.api.v1.food import router as food_router
 from app.api.v1.transport import router as transport_router
 from app.api.v1.analytics import router as analytics_router
+from app.api.v1.culture import router as culture_router
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("karnataka-yatra-ai")
@@ -122,6 +124,8 @@ app.include_router(research_router, prefix="/api")
 app.include_router(food_router, prefix="/api")
 app.include_router(transport_router, prefix="/api")
 app.include_router(analytics_router, prefix="/api")
+app.include_router(culture_router, prefix="/api")
+
 
 @app.get("/")
 @app.get("/health")

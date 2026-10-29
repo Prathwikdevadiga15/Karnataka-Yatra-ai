@@ -3,11 +3,25 @@
 **"Discover Karnataka. Experience More. Travel Smarter."**  
 *ಕನ್ನಡದಲ್ಲೇ ಪ್ರವಾಸ ಯೋಜನೆ • ಅಧಿಕೃತ ಸಾಂಸ್ಕೃತಿಕ ಮಾಹಿತಿ • ನಿಖರ ಬಜೆಟ್*
 
+- 🌐 **Live Website:** [https://karnataka-yatra-live.vercel.app](https://karnataka-yatra-live.vercel.app)
+- 🐙 **GitHub Repository:** [https://github.com/Prathwikdevadiga15/karnataka-yatra-ai](https://github.com/Prathwikdevadiga15/karnataka-yatra-ai)
+
 A production-minded, culturally authentic AI tourism platform engineered for Karnataka travel planning. Built with deterministic feasibility algorithms, verified Archaeological Survey of India (ASI) & Karnataka Tourism RAG grounding, interactive geospatial routing, and native Kannada-English accessibility.
 
 ---
 
 ## 🌟 Key Features
+
+### 0. Cinematic Hero Section & Living Culture Video Showcase
+- **Cinematic Video Hero:** Features rich background video loops with real-time channel switching:
+  - 🌊 **Cascades of Jog Falls & Western Ghats:** 830-foot plunge cascades of the Sahyadris.
+  - 👑 **Royal Mysuru Dasara & Grandeur:** 100,000 palace lights and 400-year Wadiyar heritage.
+  - 🏛️ **UNESCO Boulders of Hampi:** Stone chariot and Vijayanagara granite architecture.
+  - 🎭 **Coastal Yakshagana & Folk Lore:** Epic dance drama, vibrant Mudi headgear, and Arabian sea lore.
+- **Interactive Controls:** Toggle sound, play/pause video, and watch an interactive 4K cultural documentary film modal with chapter selection.
+- **Soul of Karnataka Showcase:** Dedicated filterable exhibition for performing arts, royal heritage, UNESCO architecture, and sacred ecology.
+- **Iconic Places Showcase:** Spotlight on Jog Falls, Hampi, Mysuru Palace, Belur & Halebidu, Badami Caves, and Gokarna.
+- **Backend Culture API:** `/api/v1/culture/traditions`, `/api/v1/culture/places`, `/api/v1/culture/videos`, and `/api/v1/culture/highlight`.
 
 ### 1. Deterministic AI Itinerary Generator
 - **Authentic Routing:** Sequences multi-day journeys starting from major Karnataka transit hubs (Bengaluru, Mysuru, Mangaluru, Udupi, Chikkamagaluru).

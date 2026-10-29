@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import {
@@ -25,22 +25,102 @@ import {
   Play,
   Pause,
   Volume2,
+  VolumeX,
+  X,
   Crown,
   Flame,
   Award,
-  BookOpen
+  BookOpen,
+  Film,
+  Camera,
+  Layers,
+  Heart
 } from "lucide-react";
+import { getHeroVideos, getCulturalTraditions } from "../services/api";
+
+interface HeroVideoChannel {
+  id: string;
+  title: string;
+  kn: string;
+  subtitle: string;
+  video_url: string;
+  poster: string;
+  category: string;
+  badge: string;
+}
 
 export default function Home() {
   const { language, t } = useLanguage();
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Video State
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [modalChapterIndex, setModalChapterIndex] = useState(0);
+
+  // Filter state for culture traditions
+  const [cultureFilter, setCultureFilter] = useState("all");
 
   // Quick Search Form State
   const [origin, setOrigin] = useState("bengaluru");
   const [days, setDays] = useState(3);
   const [interest, setInterest] = useState("heritage");
+
+  const heroVideos: HeroVideoChannel[] = [
+    {
+      id: "jog-falls",
+      title: "Cascades of Jog Falls & Western Ghats",
+      kn: "ಜೋಗ ಜಲಪಾತ ಮತ್ತು ಮಲೆನಾಡಿನ ವೈಭವ",
+      subtitle: "Thunderous 830-foot drops of Raja, Rani, Roarer & Rocket cascading through the misty Sahyadris.",
+      video_url: "https://assets.mixkit.co/videos/preview/mixkit-waterfall-in-forest-2213-large.mp4",
+      poster: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1600&q=80",
+      category: "Natural Wonder",
+      badge: "🌊 Jog Falls Cascades"
+    },
+    {
+      id: "mysuru-dasara",
+      title: "Royal Mysuru Dasara & Illumination",
+      kn: "ಮೈಸೂರು ಅರಮನೆ ಮತ್ತು ದಸರಾ ವೈಭವ",
+      subtitle: "100,000 bulbs illuminating Amba Vilas Palace and 400 years of royal Wadiyar heritage.",
+      video_url: "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4",
+      poster: "https://images.unsplash.com/photo-1600100397608-f010e421c4b7?auto=format&fit=crop&w=1600&q=80",
+      category: "Royal Heritage",
+      badge: "👑 Mysuru Dasara"
+    },
+    {
+      id: "hampi-unesco",
+      title: "UNESCO Boulders of Hampi & Vijayanagara",
+      kn: "ಹಂಪಿಯ ಶಿಲ್ಪಕಲೆ ಮತ್ತು ವಿಜಯನಗರ ಸಾಮ್ರಾಜ್ಯ",
+      subtitle: "Stone Chariot, Virupaksha, and granite monoliths of the legendary 14th century empire.",
+      video_url: "https://assets.mixkit.co/videos/preview/mixkit-waterfall-in-forest-2213-large.mp4",
+      poster: "https://images.unsplash.com/photo-1620766182966-c6eb5ed2b788?auto=format&fit=crop&w=1600&q=80",
+      category: "UNESCO Monument",
+      badge: "🏛️ Hampi Boulders"
+    },
+    {
+      id: "yakshagana-culture",
+      title: "Coastal Yakshagana & Folk Lore",
+      kn: "ಕರಾವಳಿಯ ಯಕ್ಷಗಾನ ಮತ್ತು ಜಾನಪದ ಸಂಸ್ಕೃತಿ",
+      subtitle: "Epic dance drama, colorful Mudi headgear, and sacred Arabian Sea shores.",
+      video_url: "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4",
+      poster: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1600&q=80",
+      category: "Folk Performing Arts",
+      badge: "🎭 Coastal Yakshagana"
+    }
+  ];
+
+  const [activeChannel, setActiveChannel] = useState<HeroVideoChannel>(heroVideos[0]);
+
+  const selectChannel = (channel: HeroVideoChannel) => {
+    setActiveChannel(channel);
+    if (videoRef.current) {
+      videoRef.current.src = channel.video_url;
+      videoRef.current.load();
+      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+    }
+  };
 
   const toggleVideo = () => {
     if (videoRef.current) {
@@ -50,6 +130,13 @@ export default function Home() {
         videoRef.current.play();
       }
       setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setIsMuted(videoRef.current.muted);
     }
   };
 
@@ -63,100 +150,141 @@ export default function Home() {
       id: "yakshagana",
       title: "Yakshagana Dance-Drama",
       kn: "ಯಕ್ಷಗಾನ ಮತ್ತು ರಂಗ ಕಲೆ",
-      category: "Living Performing Art",
+      category: "performing",
+      categoryLabel: "Living Performing Art",
       desc: "Ancient coastal theatrical art form combining elaborate headgear (Mudi), vivid facial makeup, heroic dance steps, and thunderous Chande drum rhythms depicting epic lore.",
       image: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=600&q=80",
       region: "Coastal & Malnad",
-      badge: "Intangible Heritage"
+      badge: "Intangible Heritage",
+      places: "Udupi, Mangaluru, Honnavar"
     },
     {
       id: "mysuru-dasara",
-      title: "Mysuru Royal Dasara",
+      title: "Mysuru Royal Dasara & Jumboo Savari",
       kn: "ನಾಡಹಬ್ಬ ಮೈಸೂರು ದಸರಾ",
-      category: "Royal State Festival",
-      desc: "400-year-old Naada Habba tradition instituted by Raja Wadiyar in 1610 CE, featuring the 750 kg Golden Howdah Jumboo Savari and 100,000 illuminated palace bulbs.",
+      category: "royalty",
+      categoryLabel: "Royal State Festival",
+      desc: "400-year-old Naada Habba tradition instituted by Raja Wadiyar in 1610 CE, featuring the 750 kg Golden Howdah Jumboo Savari, Chamundeshwari procession, and 100,000 illuminated palace bulbs.",
       image: "https://images.unsplash.com/photo-1600100397608-f010e421c4b7?auto=format&fit=crop&w=600&q=80",
       region: "Old Mysore",
-      badge: "Wadiyar Legacy"
+      badge: "Wadiyar Legacy",
+      places: "Mysuru Palace, Chamundi Hills"
     },
     {
       id: "kambala",
       title: "Kambala Buffalo Sprint",
       kn: "ಕರಾವಳಿಯ ವೀರ ಕ್ರೀಡೆ ಕಂಬಳ",
-      category: "Agrarian Heritage Sport",
+      category: "performing",
+      categoryLabel: "Agrarian Heritage Sport",
       desc: "Thrilling twin-track slush racing of sturdy buffalo pairs across Dakshina Kannada and Udupi paddy fields celebrating seasonal harvest fertility and ancestral spirits.",
       image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=600&q=80",
       region: "Coastal Karnataka",
-      badge: "Folk Tradition"
+      badge: "Folk Tradition",
+      places: "Moodabidri, Puttur, Bantwal"
     },
     {
       id: "hoysala-architecture",
       title: "Hoysala Star-Shaped Temples",
       kn: "ಹೊಯ್ಸಳ ಶಿಲ್ಪಕಲೆ ಮತ್ತು ವಾಸ್ತುಶಿಲ್ಪ",
-      category: "UNESCO World Heritage 2023",
+      category: "unesco",
+      categoryLabel: "UNESCO World Heritage 2023",
       desc: "12th-century chloritic schist (soapstone) filigree temples of Belur, Halebidu, and Somanathapura carved with mind-boggling precision by master sculptors Ruvari Jakanachari.",
       image: "https://images.unsplash.com/photo-1620766182966-c6eb5ed2b788?auto=format&fit=crop&w=600&q=80",
       region: "Hoysala Heartland",
-      badge: "UNESCO Monument"
+      badge: "UNESCO Monument",
+      places: "Belur, Halebidu, Somanathapura"
     },
     {
       id: "devara-kaadu",
       title: "Sacred Groves (Devara Kaadu)",
       kn: "ದೇವರ ಕಾಡು ಮತ್ತು ನಿಸರ್ಗ ಆರಾಧನೆ",
-      category: "Ecological Tradition",
+      category: "nature",
+      categoryLabel: "Ecological Tradition",
       desc: "Pristine virgin forest patches across the Western Ghats protected through spiritual taboos, safeguarding rare medicinal herbs, fresh springs, and endemic wildlife.",
       image: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
       region: "Western Ghats & Coorg",
-      badge: "Sacred Ecology"
+      badge: "Sacred Ecology",
+      places: "Kodagu, Chikkamagaluru, Sirsi"
     },
     {
-      id: "kannada-literature",
-      title: "Classical Kannada Literature",
-      kn: "ಕನ್ನಡ ಸಾಹಿತ್ಯ ಮತ್ತು ವಚನ ಚಳವಳಿ",
-      category: "2000+ Year Literary Heritage",
-      desc: "From Halmidi stone inscription (450 CE) and Adikavi Pampa to the egalitarian 12th-century Vachanas of Basavanna and 8 prestigious national Jnanpith awards.",
+      id: "dollu-kunitha",
+      title: "Dollu Kunitha Folk Drum Dance",
+      kn: "ಡೊಳ್ಳು ಕುಣಿತ ಮತ್ತು ಜಾನಪದ ಕಲೆ",
+      category: "performing",
+      categoryLabel: "Kuruba Folk Rhythm",
+      desc: "High-energy rhythmic drum dance dedicated to deity Beereshwara, characterized by fast acrobatics, resonant drum strokes, and vocal chants echoing across Karnataka's heartland.",
       image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&q=80",
-      region: "All Karnataka",
-      badge: "Classical Tongue"
+      region: "Karnataka Plains",
+      badge: "Folk Drum Lore",
+      places: "Shivamogga, Chitradurga, Tumakuru"
     }
   ];
 
-  const featuredDestinations = [
+  const filteredTraditions =
+    cultureFilter === "all"
+      ? culturalTraditions
+      : culturalTraditions.filter((t) => t.category === cultureFilter);
+
+  const iconicPlaces = [
     {
-      id: "hampi",
-      name: "Hampi",
-      kn: "ಹಂಪಿ",
-      region: "Kalyana Karnataka",
-      desc: "UNESCO World Heritage boulder kingdom of Vijayanagara on the Tungabhadra River.",
-      image: "https://images.unsplash.com/photo-1620766182966-c6eb5ed2b788?auto=format&fit=crop&w=600&q=80",
-      tag: "UNESCO Heritage"
+      id: "jog-falls",
+      name: "Jog Falls (Gerosoppa)",
+      kn: "ಜೋಗ ಜಲಪಾತ",
+      district: "Shivamogga",
+      region: "Malnad",
+      tag: "Cascades & Rainforests",
+      desc: "India's renowned un-tiered plunge waterfall where the Sharavathi river drops 830 feet in 4 distinct streams: Raja, Rani, Roarer, and Rocket.",
+      image: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=600&q=80"
     },
     {
-      id: "coorg",
-      name: "Coorg (Madikeri)",
-      kn: "ಕೊಡಗು",
-      region: "Malnad",
-      desc: "Misty Western Ghats coffee plantations, Abbey Falls, and rich Kodava martial culture.",
-      image: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=600&q=80",
-      tag: "Coffee & Nature"
+      id: "mysuru-palace",
+      name: "Mysuru Palace (Amba Vilas)",
+      kn: "ಮೈಸೂರು ಅರಮನೆ",
+      district: "Mysuru",
+      region: "Old Mysore",
+      tag: "Royal Grandeur",
+      desc: "Architectural masterpiece of the Wadiyars, world-famous for its kaleidoscopic stained glass, golden throne, and Dasara illumination.",
+      image: "https://images.unsplash.com/photo-1600100397608-f010e421c4b7?auto=format&fit=crop&w=600&q=80"
+    },
+    {
+      id: "hampi",
+      name: "Hampi UNESCO Monuments",
+      kn: "ಹಂಪಿ",
+      district: "Vijayanagara",
+      region: "Central Plains",
+      tag: "UNESCO Boulders",
+      desc: "14th-century capital of the Vijayanagara Empire with stone chariot, Vittala musical pillars, and atmospheric Tungabhadra riverbanks.",
+      image: "https://images.unsplash.com/photo-1620766182966-c6eb5ed2b788?auto=format&fit=crop&w=600&q=80"
+    },
+    {
+      id: "belur-halebidu",
+      name: "Belur & Halebidu",
+      kn: "ಬೇಲೂರು ಮತ್ತು ಹಳೇಬೀಡು",
+      district: "Hassan",
+      region: "Hoysala Heartland",
+      tag: "Filigree Sculptures",
+      desc: "Star-shaped soapstone sanctums with world-famous Madanika dancers and battle reliefs, newly inscribed as UNESCO World Heritage in 2023.",
+      image: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80"
+    },
+    {
+      id: "badami",
+      name: "Badami Cave Temples",
+      kn: "ಬಾದಾಮಿ ಗುಹೆಗಳು",
+      district: "Bagalkote",
+      region: "North Karnataka",
+      tag: "Chalukya Rock-Cut Art",
+      desc: "6th-century red sandstone cliff caves overlooking Agastya lake, featuring the 18-armed dancing Nataraja and ancient Jain/Vedic sanctuaries.",
+      image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&q=80"
     },
     {
       id: "gokarna",
-      name: "Gokarna",
+      name: "Gokarna & Om Beach",
       kn: "ಗೋಕರ್ಣ",
-      region: "Coastal",
-      desc: "Ancient Mahabaleshwara temple town meeting secluded Arabian Sea beaches and cliff trails.",
-      image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=600&q=80",
-      tag: "Coastal Haven"
-    },
-    {
-      id: "mysuru",
-      name: "Mysuru",
-      kn: "ಮೈಸೂರು",
-      region: "Old Mysore",
-      desc: "The royal cultural capital celebrated for the illuminated Amba Vilas Palace and Chamundi Hill.",
-      image: "https://images.unsplash.com/photo-1600100397608-f010e421c4b7?auto=format&fit=crop&w=600&q=80",
-      tag: "Royal Heritage"
+      district: "Uttara Kannada",
+      region: "Coastal Karnataka",
+      tag: "Sacred Shoreline",
+      desc: "Ancient coastal town sacred for Mahabaleshwara Atmalinga, where dramatic granite cliffs tumble into pristine Arabian Sea crescent beaches.",
+      image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=600&q=80"
     }
   ];
 
@@ -242,67 +370,102 @@ export default function Home() {
 
   return (
     <div className="space-y-16 pb-16 animate-fadeIn">
-      {/* 1. Cinematic Hero Section with Embedded Video Background */}
-      <section className="relative rounded-3xl overflow-hidden bg-forest text-ivory shadow-2xl min-h-[620px] flex items-center border border-gold/40">
+      {/* 1. Cinematic Hero Section with Embedded Video Background & Live Channel Switcher */}
+      <section className="relative rounded-3xl overflow-hidden bg-forest text-ivory shadow-2xl min-h-[660px] flex items-center border border-gold/40">
         {/* Cinematic Video Background */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <video
             ref={videoRef}
             autoPlay
             loop
-            muted
+            muted={isMuted}
             playsInline
-            poster="https://images.unsplash.com/photo-1600100397608-f010e421c4b7?auto=format&fit=crop&w=1600&q=80"
-            className="w-full h-full object-cover opacity-40 filter brightness-90 contrast-110"
+            poster={activeChannel.poster}
+            className="w-full h-full object-cover opacity-50 filter brightness-90 contrast-110 scale-105 transition-all duration-700"
           >
-            <source
-              src="https://assets.mixkit.co/videos/preview/mixkit-waterfall-in-forest-2213-large.mp4"
-              type="video/mp4"
-            />
-            {/* Fallback image */}
+            <source src={activeChannel.video_url} type="video/mp4" />
             <img
-              src="https://images.unsplash.com/photo-1600100397608-f010e421c4b7?auto=format&fit=crop&w=1600&q=80"
+              src={activeChannel.poster}
               alt="Karnataka heritage"
               className="w-full h-full object-cover"
             />
           </video>
 
-          {/* Gradient Overlay for Readable Typography */}
-          <div className="absolute inset-0 bg-gradient-to-r from-forest/95 via-forest/80 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-forest via-transparent to-black/30" />
+          {/* Gradient Overlays for Crisp Typographic Readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-forest/95 via-forest/85 to-forest/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-forest via-transparent to-black/50" />
         </div>
 
-        {/* Video Control Widget */}
-        <button
-          onClick={toggleVideo}
-          className="absolute top-4 right-4 z-20 bg-black/40 hover:bg-black/60 text-gold border border-gold/30 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-md flex items-center gap-1.5 transition"
-          title="Toggle Background Video Playback"
-          aria-label="Toggle Video"
-        >
-          {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-          <span>{isPlaying ? "Pause Video" : "Play Video"}</span>
-        </button>
+        {/* Top Video Controls & Channel Badge Widget */}
+        <div className="absolute top-4 right-4 z-20 flex flex-wrap items-center gap-2">
+          {/* Active Stream Indicator */}
+          <div className="bg-black/60 backdrop-blur-md text-gold border border-gold/40 rounded-full px-3 py-1 text-[11px] font-bold flex items-center gap-1.5 shadow-md">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="hidden sm:inline">LIVE CHANNEL:</span>
+            <span>{activeChannel.title.split("&")[0]}</span>
+          </div>
 
+          <button
+            onClick={toggleMute}
+            className="bg-black/60 hover:bg-black/80 text-gold border border-gold/40 rounded-full p-2 text-xs font-semibold backdrop-blur-md transition shadow-md"
+            title={isMuted ? "Unmute Ambient Sound" : "Mute Sound"}
+            aria-label="Toggle Mute"
+          >
+            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </button>
+
+          <button
+            onClick={toggleVideo}
+            className="bg-black/60 hover:bg-black/80 text-gold border border-gold/40 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-md flex items-center gap-1.5 transition shadow-md"
+            title="Toggle Background Video Playback"
+            aria-label="Toggle Video"
+          >
+            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">{isPlaying ? "Pause" : "Play"}</span>
+          </button>
+        </div>
+
+        {/* Main Hero Content */}
         <div className="relative z-10 max-w-4xl px-6 sm:px-12 py-16 space-y-6">
           <div className="inline-flex items-center space-x-2 bg-gold/20 text-gold border border-gold/40 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md">
             <Sparkles className="w-4 h-4" />
             <span>National Hackathon 2026 Edition • Smart Tourism & Culture Hub</span>
           </div>
 
+          {/* Requested Exact Hero Heading */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
-            {language === "kn"
-              ? "ಕರ್ನಾಟಕದ ಸೌಂದರ್ಯ, ಸಂಸ್ಕೃತಿ ಮತ್ತು ಇತಿಹಾಸವನ್ನು ಅನ್ವೇಷಿಸಿ."
-              : "Discover Karnataka's Living Culture, Heritage & Wild Wonders."}
+            Discover Karnataka's Living Culture, Heritage & Wild Wonders.
           </h1>
 
-          <p className="text-base sm:text-lg text-ivory/85 max-w-2xl leading-relaxed">
-            {language === "kn"
-              ? "ಭಾರತೀಯ ಪುರಾತತ್ವ ಸರ್ವೇಕ್ಷಣಾ ಇಲಾಖೆ (ASI) ದೃಢೀಕೃತ ದಾಖಲೆಗಳು, ಮಲೆನಾಡಿನ ಘಾಟ್ ಸಂಚಾರ ಅಲ್ಗಾರಿದಮ್‌ಗಳು ಮತ್ತು ಕನ್ನಡ ಧ್ವನಿ ಸಹಾಯಕದೊಂದಿಗೆ ಸೃಷ್ಟಿಯಾದ ನೈಜ ಪ್ರವಾಸ ತಂತ್ರಜ್ಞಾನ."
-              : "From the thunderous cascades of Jog Falls to the royal grandeur of Mysuru Dasara and the UNESCO boulders of Hampi — experience a deterministic, culturally authentic AI companion engineered for Karnataka."}
+          {/* Requested Exact Hero Subheading */}
+          <p className="text-base sm:text-lg text-ivory/90 max-w-2xl leading-relaxed">
+            From the thunderous cascades of Jog Falls to the royal grandeur of Mysuru Dasara and the UNESCO boulders of Hampi — experience a deterministic, culturally authentic AI companion engineered for Karnataka.
           </p>
 
-          {/* Hero CTAs */}
-          <div className="flex flex-wrap gap-3.5 pt-2">
+          {/* Video Channel Quick Switcher Pills */}
+          <div className="space-y-1.5 pt-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-gold/80 block">
+              🎥 Select Karnataka Culture & Heritage Video Loop:
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {heroVideos.map((vid) => (
+                <button
+                  key={vid.id}
+                  onClick={() => selectChannel(vid)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border backdrop-blur-md flex items-center space-x-1.5 ${
+                    activeChannel.id === vid.id
+                      ? "bg-gold text-forest border-gold shadow-md font-bold scale-102"
+                      : "bg-black/40 text-stone-200 border-white/20 hover:border-gold/60 hover:text-white"
+                  }`}
+                >
+                  <span>{vid.badge}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Hero Action CTAs */}
+          <div className="flex flex-wrap gap-3.5 pt-3">
             <Link
               to="/planner"
               className="px-6 py-3.5 bg-gold text-forest font-bold text-sm rounded-xl shadow-lg hover:bg-gold/90 transition-all flex items-center space-x-2 transform hover:-translate-y-0.5"
@@ -310,6 +473,14 @@ export default function Home() {
               <span>{t("plan_my_journey")}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
+
+            <button
+              onClick={() => setShowVideoModal(true)}
+              className="px-5 py-3.5 bg-gold/20 hover:bg-gold/30 text-gold font-bold text-sm rounded-xl border border-gold/50 backdrop-blur-md transition-all flex items-center space-x-2"
+            >
+              <Film className="w-4 h-4 text-gold" />
+              <span>Watch 4K Cultural Film</span>
+            </button>
 
             <Link
               to="/assistant"
@@ -338,7 +509,90 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. Hackathon Engineering Metric Banner */}
+      {/* 2. Interactive 4K Cultural Film Modal with Chapter Navigation */}
+      {showVideoModal && (
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-forest border border-gold/50 rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl space-y-4 p-6 relative text-ivory">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center space-x-2">
+                <Crown className="w-5 h-5 text-gold" />
+                <h3 className="text-base sm:text-lg font-bold">
+                  Incredible Karnataka: Living Culture, Traditions & Wonders
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowVideoModal(false)}
+                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Chapter Selection Pills inside Modal */}
+            <div className="flex flex-wrap gap-2 pb-2">
+              {heroVideos.map((vid, idx) => (
+                <button
+                  key={vid.id}
+                  onClick={() => setModalChapterIndex(idx)}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
+                    modalChapterIndex === idx
+                      ? "bg-gold text-forest font-bold"
+                      : "bg-white/10 text-stone-300 hover:bg-white/20"
+                  }`}
+                >
+                  <span>Ch {idx + 1}: {vid.title.split("&")[0]}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Video Player */}
+            <div className="relative rounded-xl overflow-hidden bg-black aspect-video shadow-inner">
+              <video
+                key={heroVideos[modalChapterIndex].id}
+                controls
+                autoPlay
+                className="w-full h-full object-cover"
+                poster={heroVideos[modalChapterIndex].poster}
+              >
+                <source src={heroVideos[modalChapterIndex].video_url} type="video/mp4" />
+              </video>
+            </div>
+
+            {/* Chapter Details & Cultural Narrative */}
+            <div className="bg-white/5 p-4 rounded-xl border border-white/10 space-y-2">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-bold text-gold">
+                  {heroVideos[modalChapterIndex].title} ({heroVideos[modalChapterIndex].kn})
+                </h4>
+                <span className="text-[10px] bg-gold/20 text-gold px-2 py-0.5 rounded-md font-semibold">
+                  {heroVideos[modalChapterIndex].category}
+                </span>
+              </div>
+              <p className="text-xs text-stone-300 leading-relaxed">
+                {heroVideos[modalChapterIndex].subtitle}
+              </p>
+            </div>
+
+            {/* Cultural Insights Strip */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
+              <div className="p-3 bg-white/5 rounded-lg border border-white/10">
+                <span className="font-bold text-gold block mb-1">🎭 Yakshagana & Coastal Lore</span>
+                <p className="text-stone-300 text-[11px]">Epic coastal theater, Badagu and Tenku Tittu styles celebrating heroic mythology.</p>
+              </div>
+              <div className="p-3 bg-white/5 rounded-lg border border-white/10">
+                <span className="font-bold text-gold block mb-1">👑 Mysuru Dasara Grandeur</span>
+                <p className="text-stone-300 text-[11px]">400-year royal Wadiyar procession, 750kg Golden Howdah and Chamundi Hill reverence.</p>
+              </div>
+              <div className="p-3 bg-white/5 rounded-lg border border-white/10">
+                <span className="font-bold text-gold block mb-1">🏛️ Hampi & Western Ghats</span>
+                <p className="text-stone-300 text-[11px]">UNESCO boulder architecture meeting misty rainforests and cascades of Jog Falls.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Hackathon Engineering Metric Banner */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto px-4">
         <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-xs flex items-center space-x-3">
           <div className="w-10 h-10 rounded-lg bg-forest/10 flex items-center justify-center text-forest">
@@ -381,8 +635,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. Soul of Karnataka: Culture, Traditions & Heritage Section */}
-      <section className="space-y-6">
+      {/* 4. Soul of Karnataka: Culture, Traditions & Living Heritage Showcase */}
+      <section className="space-y-6" id="culture-section">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between">
           <div>
             <span className="text-xs uppercase font-bold text-gold tracking-widest block mb-1">
@@ -397,29 +651,46 @@ export default function Home() {
               Immerse yourself in centuries of performing arts, sacred ecology, royal celebrations, and architectural marvels.
             </p>
           </div>
-          <Link
-            to="/explore?category=heritage"
-            className="text-xs font-semibold text-forest hover:text-gold flex items-center space-x-1 mt-2 sm:mt-0"
-          >
-            <span>Explore Cultural Routes</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+
+          {/* Culture Category Filters */}
+          <div className="flex flex-wrap gap-2 mt-3 sm:mt-0">
+            {[
+              { id: "all", label: "All Traditions" },
+              { id: "performing", label: "Folk & Performing Arts" },
+              { id: "royalty", label: "Royal Heritage" },
+              { id: "unesco", label: "UNESCO Architecture" },
+              { id: "nature", label: "Sacred Nature" }
+            ].map((f) => (
+              <button
+                key={f.id}
+                onClick={() => setCultureFilter(f.id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                  cultureFilter === f.id
+                    ? "bg-forest text-gold font-bold shadow-xs"
+                    : "bg-stone-100 text-charcoal/70 hover:bg-stone-200"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
+        {/* Culture Tradition Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {culturalTraditions.map((item) => (
+          {filteredTraditions.map((item) => (
             <div
               key={item.id}
               className="bg-white rounded-2xl overflow-hidden shadow-xs hover:shadow-lg transition-all border border-stone-200 flex flex-col justify-between group"
             >
               <div>
-                <div className="relative h-44 overflow-hidden">
+                <div className="relative h-48 overflow-hidden">
                   <img
                     src={item.image}
                     alt={item.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
                   <span className="absolute top-3 left-3 bg-forest/90 text-gold text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border border-gold/30">
                     {item.badge}
                   </span>
@@ -434,9 +705,13 @@ export default function Home() {
 
                 <div className="p-4 space-y-2">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-forest block">
-                    {item.category}
+                    {item.categoryLabel}
                   </span>
                   <p className="text-xs text-charcoal/80 leading-relaxed">{item.desc}</p>
+                  <div className="pt-1 text-[11px] text-stone-500">
+                    <span className="font-semibold text-stone-700">Hubs: </span>
+                    {item.places}
+                  </div>
                 </div>
               </div>
 
@@ -454,7 +729,75 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Quick Search / Trip Launcher Card */}
+      {/* 5. Places of Karnataka: Iconic Cultural & Natural Landmarks */}
+      <section className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between">
+          <div>
+            <span className="text-xs uppercase font-bold text-gold tracking-widest block mb-1">
+              Iconic Destinations
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-charcoal tracking-tight">
+              Places of Karnataka: Natural Wonders & Sacred Citadels
+            </h2>
+            <p className="text-xs sm:text-sm text-charcoal/70 max-w-2xl mt-1">
+              From the highest waterfalls to UNESCO ancient rock architecture and tranquil Arabian shores.
+            </p>
+          </div>
+          <Link
+            to="/explore"
+            className="text-xs font-semibold text-forest hover:text-gold flex items-center space-x-1 mt-2 sm:mt-0"
+          >
+            <span>View All Destinations</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {iconicPlaces.map((place) => (
+            <div
+              key={place.id}
+              className="bg-white rounded-2xl overflow-hidden shadow-xs hover:shadow-lg transition-all border border-stone-200 flex flex-col justify-between group"
+            >
+              <div>
+                <div className="relative h-48 overflow-hidden">
+                  <img
+                    src={place.image}
+                    alt={place.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <span className="absolute top-3 left-3 bg-forest/90 text-gold text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border border-gold/30">
+                    {place.tag}
+                  </span>
+                  <div className="absolute bottom-2.5 left-3 right-3 text-white">
+                    <span className="text-[10px] text-gold font-semibold uppercase tracking-wider block">
+                      {place.district} • {place.region}
+                    </span>
+                    <h3 className="text-base font-bold leading-tight">{place.name}</h3>
+                    <p className="text-xs text-stone-300 font-kannada">{place.kn}</p>
+                  </div>
+                </div>
+
+                <div className="p-4 space-y-2">
+                  <p className="text-xs text-charcoal/80 leading-relaxed">{place.desc}</p>
+                </div>
+              </div>
+
+              <div className="p-4 pt-0">
+                <Link
+                  to={`/planner?origin=bengaluru&days=3&must_visit=${place.id}`}
+                  className="w-full py-2 bg-stone-50 hover:bg-forest hover:text-gold text-forest text-xs font-semibold rounded-lg border border-stone-200 transition-colors flex items-center justify-center space-x-1.5"
+                >
+                  <span>Build Route to {place.name.split(" ")[0]}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 6. Quick Search / Trip Launcher Card */}
       <section className="relative z-20 max-w-5xl mx-auto px-4">
         <form
           onSubmit={handleQuickPlan}
@@ -515,63 +858,65 @@ export default function Home() {
 
           <button
             type="submit"
-            className="w-full py-2.5 bg-forest text-ivory text-xs font-bold rounded-lg hover:bg-forest/90 transition flex items-center justify-center space-x-2 shadow-md"
+            className="w-full py-2.5 bg-forest hover:bg-forest/90 text-gold font-bold text-xs rounded-lg transition-all flex items-center justify-center space-x-2 h-[38px] shadow-sm"
           >
-            <span>Plan Instant Itinerary</span>
-            <ArrowRight className="w-3.5 h-3.5 text-gold" />
+            <Search className="w-4 h-4" />
+            <span>Generate Itinerary</span>
           </button>
         </form>
       </section>
 
-      {/* 5. Discover by Mood */}
+      {/* 7. Discover by Mood */}
       <section className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between">
           <div>
             <span className="text-xs uppercase font-bold text-gold tracking-widest block mb-1">
-              Tailored Discovery
+              Curated Moods
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-charcoal tracking-tight">
-              Discover Karnataka by Mood
+              {t("discover_by_mood")}
             </h2>
+            <p className="text-xs sm:text-sm text-charcoal/70 max-w-2xl mt-1">
+              Filter by experience style — from tranquil Western Ghat cascades to ancient Vijayanagara ruins.
+            </p>
           </div>
           <Link
             to="/explore"
             className="text-xs font-semibold text-forest hover:text-gold flex items-center space-x-1 mt-2 sm:mt-0"
           >
-            <span>View all 50+ Destinations</span>
+            <span>View All Categories</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {moodCategories.map((mood, idx) => {
             const Icon = mood.icon;
             return (
               <Link
                 key={idx}
                 to={mood.to}
-                className="group relative rounded-2xl overflow-hidden p-5 shadow-xs hover:shadow-lg transition-all border border-stone-200 flex flex-col justify-between h-48"
+                className="group relative h-64 rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-end p-5 border border-stone-200"
               >
-                <div className="absolute inset-0 z-0">
-                  <img
-                    src={mood.bgImage}
-                    alt={mood.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-30"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                </div>
+                <img
+                  src={mood.bgImage}
+                  alt={mood.title}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/40 to-transparent" />
 
-                <div className="relative z-10">
-                  <div className="w-9 h-9 rounded-lg bg-gold/20 text-gold flex items-center justify-center mb-3">
-                    <Icon className="w-5 h-5" />
+                <div className="relative z-10 text-white space-y-1">
+                  <div className="w-8 h-8 rounded-lg bg-gold/90 text-forest flex items-center justify-center mb-2 shadow-xs">
+                    <Icon className="w-4 h-4" />
                   </div>
-                  <h3 className="text-base font-bold text-white leading-snug">{mood.title}</h3>
-                  <span className="text-xs text-gold/90 font-medium block">{mood.kn}</span>
-                </div>
-
-                <div className="relative z-10 pt-2 border-t border-white/10 flex items-center justify-between text-xs text-stone-300">
-                  <span className="truncate pr-2">{mood.desc}</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-gold group-hover:translate-x-1 transition-transform" />
+                  <h3 className="font-bold text-base leading-tight flex items-center justify-between">
+                    <span>{mood.title}</span>
+                    <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:translate-x-1" />
+                  </h3>
+                  <p className="text-xs text-gold font-kannada font-medium">{mood.kn}</p>
+                  <p className="text-[11px] text-white/80 line-clamp-2 leading-relaxed pt-1">
+                    {mood.desc}
+                  </p>
                 </div>
               </Link>
             );
@@ -579,73 +924,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. Featured Destinations */}
-      <section className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between">
-          <div>
-            <span className="text-xs uppercase font-bold text-gold tracking-widest block mb-1">
-              Iconic Karnataka
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-charcoal tracking-tight">
-              Featured Heritage & Wonders
-            </h2>
-          </div>
-          <Link
-            to="/explore"
-            className="text-xs font-semibold text-forest hover:text-gold flex items-center space-x-1 mt-2 sm:mt-0"
-          >
-            <span>Explore All</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredDestinations.map((dest) => (
-            <div
-              key={dest.id}
-              className="bg-white rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-shadow border border-stone-200 flex flex-col justify-between group"
-            >
-              <div>
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={dest.image}
-                    alt={dest.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <span className="absolute top-3 left-3 bg-forest/90 text-gold text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
-                    {dest.tag}
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3 text-white">
-                    <span className="text-xs text-gold/80 block">{dest.region}</span>
-                    <h3 className="text-lg font-bold leading-tight">
-                      {dest.name} <span className="text-xs font-normal opacity-80 font-kannada">({dest.kn})</span>
-                    </h3>
-                  </div>
-                </div>
-
-                <div className="p-4 space-y-3">
-                  <p className="text-xs text-charcoal/70 leading-relaxed line-clamp-3">
-                    {dest.desc}
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-4 pt-0">
-                <Link
-                  to={`/planner?origin=bengaluru&days=3&must_visit=${dest.id}`}
-                  className="w-full py-2 bg-stone-50 hover:bg-forest hover:text-gold text-forest text-xs font-semibold rounded-lg border border-stone-200 transition-colors flex items-center justify-center space-x-1.5"
-                >
-                  <span>Build Route to {dest.name}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 7. Spotlight Modules: AI Webstrapping Studio & Taste Karnataka */}
+      {/* 8. Spotlight Modules: AI Webstrapping Studio & Taste Karnataka */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Webstrapping Studio Card */}
         <div className="bg-gradient-to-br from-forest to-forest/90 rounded-2xl p-6 text-ivory border border-gold/40 shadow-lg flex flex-col justify-between space-y-4">
@@ -690,7 +969,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. Distinct Regions Grid */}
+      {/* 9. Distinct Regions Grid */}
       <section className="space-y-6">
         <div>
           <span className="text-xs uppercase font-bold text-gold tracking-widest block mb-1">

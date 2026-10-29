@@ -522,3 +522,67 @@ export async function updateAdminDestination(
   }
   return { status: "success", message: `Destination ${destId} updated successfully.` };
 }
+
+// --- Culture & Hero Videos API ---
+export async function getHeroVideos(): Promise<any[]> {
+  try {
+    if (API_BASE) {
+      const res = await fetch(`${API_BASE}/api/v1/culture/videos`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.videos) return data.videos;
+      }
+    }
+  } catch {}
+  return [
+    {
+      id: "jog-falls",
+      title: "Cascades of Jog Falls & Western Ghats",
+      kn: "ಜೋಗ ಜಲಪಾತ ಮತ್ತು ಮಲೆನಾಡಿನ ವೈಭವ",
+      subtitle: "Thunderous 830-foot drops of Raja, Rani, Roarer & Rocket in the Sahyadris.",
+      video_url: "https://assets.mixkit.co/videos/preview/mixkit-waterfall-in-forest-2213-large.mp4",
+      poster: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1600&q=80",
+      category: "Natural Cascades"
+    },
+    {
+      id: "mysuru-dasara",
+      title: "Royal Mysuru Dasara & Illumination",
+      kn: "ಮೈಸೂರು ಅರಮನೆ ಮತ್ತು ದಸರಾ ವೈಭವ",
+      subtitle: "100,000 bulbs illuminating Amba Vilas Palace and 400 years of royal heritage.",
+      video_url: "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4",
+      poster: "https://images.unsplash.com/photo-1600100397608-f010e421c4b7?auto=format&fit=crop&w=1600&q=80",
+      category: "Royal Grandeur"
+    },
+    {
+      id: "hampi-unesco",
+      title: "UNESCO Boulders of Hampi & Vijayanagara",
+      kn: "ಹಂಪಿಯ ಶಿಲ್ಪಕಲೆ ಮತ್ತು ವಿಜಯನಗರ ಸಾಮ್ರಾಜ್ಯ",
+      subtitle: "Stone Chariot, Virupaksha, and granite monoliths of the 14th century empire.",
+      video_url: "https://assets.mixkit.co/videos/preview/mixkit-waterfall-in-forest-2213-large.mp4",
+      poster: "https://images.unsplash.com/photo-1620766182966-c6eb5ed2b788?auto=format&fit=crop&w=1600&q=80",
+      category: "Ancient Architecture"
+    },
+    {
+      id: "yakshagana-culture",
+      title: "Coastal Yakshagana & Folk Arts",
+      kn: "ಕರಾವಳಿಯ ಯಕ್ಷಗಾನ ಮತ್ತು ಜಾನಪದ ಸಂಸ್ಕೃತಿ",
+      subtitle: "Epic dance drama, colorful Mudi headgear, and sacred Arabian Sea shores.",
+      video_url: "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4",
+      poster: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1600&q=80",
+      category: "Living Performing Arts"
+    }
+  ];
+}
+
+export async function getCulturalTraditions(): Promise<any[]> {
+  try {
+    if (API_BASE) {
+      const res = await fetch(`${API_BASE}/api/v1/culture/traditions`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.traditions) return data.traditions;
+      }
+    }
+  } catch {}
+  return [];
+}
