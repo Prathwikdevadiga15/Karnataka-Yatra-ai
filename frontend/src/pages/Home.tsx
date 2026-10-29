@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import {
@@ -21,22 +21,105 @@ import {
   Database,
   Bus,
   Search,
-  Eye
+  Eye,
+  Play,
+  Pause,
+  Volume2,
+  Crown,
+  Flame,
+  Award,
+  BookOpen
 } from "lucide-react";
 
 export default function Home() {
   const { language, t } = useLanguage();
   const navigate = useNavigate();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
 
   // Quick Search Form State
   const [origin, setOrigin] = useState("bengaluru");
   const [days, setDays] = useState(3);
   const [interest, setInterest] = useState("heritage");
 
+  const toggleVideo = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
   const handleQuickPlan = (e: React.FormEvent) => {
     e.preventDefault();
     navigate(`/planner?origin=${origin}&days=${days}&interest=${interest}`);
   };
+
+  const culturalTraditions = [
+    {
+      id: "yakshagana",
+      title: "Yakshagana Dance-Drama",
+      kn: "ಯಕ್ಷಗಾನ ಮತ್ತು ರಂಗ ಕಲೆ",
+      category: "Living Performing Art",
+      desc: "Ancient coastal theatrical art form combining elaborate headgear (Mudi), vivid facial makeup, heroic dance steps, and thunderous Chande drum rhythms depicting epic lore.",
+      image: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=600&q=80",
+      region: "Coastal & Malnad",
+      badge: "Intangible Heritage"
+    },
+    {
+      id: "mysuru-dasara",
+      title: "Mysuru Royal Dasara",
+      kn: "ನಾಡಹಬ್ಬ ಮೈಸೂರು ದಸರಾ",
+      category: "Royal State Festival",
+      desc: "400-year-old Naada Habba tradition instituted by Raja Wadiyar in 1610 CE, featuring the 750 kg Golden Howdah Jumboo Savari and 100,000 illuminated palace bulbs.",
+      image: "https://images.unsplash.com/photo-1600100397608-f010e421c4b7?auto=format&fit=crop&w=600&q=80",
+      region: "Old Mysore",
+      badge: "Wadiyar Legacy"
+    },
+    {
+      id: "kambala",
+      title: "Kambala Buffalo Sprint",
+      kn: "ಕರಾವಳಿಯ ವೀರ ಕ್ರೀಡೆ ಕಂಬಳ",
+      category: "Agrarian Heritage Sport",
+      desc: "Thrilling twin-track slush racing of sturdy buffalo pairs across Dakshina Kannada and Udupi paddy fields celebrating seasonal harvest fertility and ancestral spirits.",
+      image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=600&q=80",
+      region: "Coastal Karnataka",
+      badge: "Folk Tradition"
+    },
+    {
+      id: "hoysala-architecture",
+      title: "Hoysala Star-Shaped Temples",
+      kn: "ಹೊಯ್ಸಳ ಶಿಲ್ಪಕಲೆ ಮತ್ತು ವಾಸ್ತುಶಿಲ್ಪ",
+      category: "UNESCO World Heritage 2023",
+      desc: "12th-century chloritic schist (soapstone) filigree temples of Belur, Halebidu, and Somanathapura carved with mind-boggling precision by master sculptors Ruvari Jakanachari.",
+      image: "https://images.unsplash.com/photo-1620766182966-c6eb5ed2b788?auto=format&fit=crop&w=600&q=80",
+      region: "Hoysala Heartland",
+      badge: "UNESCO Monument"
+    },
+    {
+      id: "devara-kaadu",
+      title: "Sacred Groves (Devara Kaadu)",
+      kn: "ದೇವರ ಕಾಡು ಮತ್ತು ನಿಸರ್ಗ ಆರಾಧನೆ",
+      category: "Ecological Tradition",
+      desc: "Pristine virgin forest patches across the Western Ghats protected through spiritual taboos, safeguarding rare medicinal herbs, fresh springs, and endemic wildlife.",
+      image: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
+      region: "Western Ghats & Coorg",
+      badge: "Sacred Ecology"
+    },
+    {
+      id: "kannada-literature",
+      title: "Classical Kannada Literature",
+      kn: "ಕನ್ನಡ ಸಾಹಿತ್ಯ ಮತ್ತು ವಚನ ಚಳವಳಿ",
+      category: "2000+ Year Literary Heritage",
+      desc: "From Halmidi stone inscription (450 CE) and Adikavi Pampa to the egalitarian 12th-century Vachanas of Basavanna and 8 prestigious national Jnanpith awards.",
+      image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&q=80",
+      region: "All Karnataka",
+      badge: "Classical Tongue"
+    }
+  ];
 
   const featuredDestinations = [
     {
@@ -84,7 +167,6 @@ export default function Home() {
       desc: "Jog Falls, Abbey, Shivanasamudra, Sathodi",
       to: "/explore?category=waterfalls",
       icon: Waves,
-      gradient: "from-blue-600 to-cyan-500",
       bgImage: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=400&q=80"
     },
     {
@@ -93,7 +175,6 @@ export default function Home() {
       desc: "Chikkamagaluru, Coorg, Kudremukh, Agumbe",
       to: "/explore?category=nature",
       icon: Mountain,
-      gradient: "from-emerald-700 to-teal-600",
       bgImage: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=400&q=80"
     },
     {
@@ -102,7 +183,6 @@ export default function Home() {
       desc: "Hampi, Badami, Belur, Pattadakal, Bijapur",
       to: "/explore?category=heritage",
       icon: Building,
-      gradient: "from-amber-700 to-yellow-600",
       bgImage: "https://images.unsplash.com/photo-1620766182966-c6eb5ed2b788?auto=format&fit=crop&w=400&q=80"
     },
     {
@@ -111,7 +191,6 @@ export default function Home() {
       desc: "Mysore Masala Dosa, Neer Dosa, Benne Dosa",
       to: "/food",
       icon: Utensils,
-      gradient: "from-rose-600 to-orange-500",
       bgImage: "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=400&q=80"
     }
   ];
@@ -163,34 +242,63 @@ export default function Home() {
 
   return (
     <div className="space-y-16 pb-16 animate-fadeIn">
-      {/* 1. Cinematic Hackathon Hero Section */}
-      <section className="relative rounded-3xl overflow-hidden bg-forest text-ivory shadow-2xl min-h-[580px] flex items-center border border-gold/30">
-        {/* Background Image Overlay */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1600100397608-f010e421c4b7?auto=format&fit=crop&w=1600&q=80"
-            alt="Mysuru Palace at dusk"
-            className="w-full h-full object-cover opacity-25 filter brightness-75 contrast-125"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-forest via-forest/90 to-ocean/50" />
+      {/* 1. Cinematic Hero Section with Embedded Video Background */}
+      <section className="relative rounded-3xl overflow-hidden bg-forest text-ivory shadow-2xl min-h-[620px] flex items-center border border-gold/40">
+        {/* Cinematic Video Background */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <video
+            ref={videoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster="https://images.unsplash.com/photo-1600100397608-f010e421c4b7?auto=format&fit=crop&w=1600&q=80"
+            className="w-full h-full object-cover opacity-40 filter brightness-90 contrast-110"
+          >
+            <source
+              src="https://assets.mixkit.co/videos/preview/mixkit-waterfall-in-forest-2213-large.mp4"
+              type="video/mp4"
+            />
+            {/* Fallback image */}
+            <img
+              src="https://images.unsplash.com/photo-1600100397608-f010e421c4b7?auto=format&fit=crop&w=1600&q=80"
+              alt="Karnataka heritage"
+              className="w-full h-full object-cover"
+            />
+          </video>
+
+          {/* Gradient Overlay for Readable Typography */}
+          <div className="absolute inset-0 bg-gradient-to-r from-forest/95 via-forest/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-forest via-transparent to-black/30" />
         </div>
+
+        {/* Video Control Widget */}
+        <button
+          onClick={toggleVideo}
+          className="absolute top-4 right-4 z-20 bg-black/40 hover:bg-black/60 text-gold border border-gold/30 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-md flex items-center gap-1.5 transition"
+          title="Toggle Background Video Playback"
+          aria-label="Toggle Video"
+        >
+          {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+          <span>{isPlaying ? "Pause Video" : "Play Video"}</span>
+        </button>
 
         <div className="relative z-10 max-w-4xl px-6 sm:px-12 py-16 space-y-6">
           <div className="inline-flex items-center space-x-2 bg-gold/20 text-gold border border-gold/40 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md">
             <Sparkles className="w-4 h-4" />
-            <span>National Hackathon 2026 Edition • Smart Tourism Platform</span>
+            <span>National Hackathon 2026 Edition • Smart Tourism & Culture Hub</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
             {language === "kn"
-              ? "ಕರ್ನಾಟಕದ ಸೌಂದರ್ಯವನ್ನು ಅನ್ವೇಷಿಸಿ. ಸ್ಮಾರ್ಟ್ ಪ್ರವಾಸ ಮಾಡಿ."
-              : "Your Next Great Journey Begins in Karnataka."}
+              ? "ಕರ್ನಾಟಕದ ಸೌಂದರ್ಯ, ಸಂಸ್ಕೃತಿ ಮತ್ತು ಇತಿಹಾಸವನ್ನು ಅನ್ವೇಷಿಸಿ."
+              : "Discover Karnataka's Living Culture, Heritage & Wild Wonders."}
           </h1>
 
-          <p className="text-base sm:text-lg text-ivory/80 max-w-2xl leading-relaxed">
+          <p className="text-base sm:text-lg text-ivory/85 max-w-2xl leading-relaxed">
             {language === "kn"
-              ? "ದೃಢೀಕೃತ ASI ಪುರಾತತ್ವ ದಾಖಲೆಗಳು, ನಿಖರ ಮಲೆನಾಡು ಘಾಟ್ ಸಂಚಾರ ಅಲ್ಗಾರಿದಮ್‌ಗಳು ಮತ್ತು ಕನ್ನಡ ಭಾಷಾ ಬೆಂಬಲದೊಂದಿಗೆ ಸ್ಮಾರ್ಟ್ ಪ್ರವಾಸ ಯೋಜನೆ."
-              : "Discover extraordinary places, experience authentic local flavours, and plan feasible journeys with an intelligent travel companion engineered for Karnataka."}
+              ? "ಭಾರತೀಯ ಪುರಾತತ್ವ ಸರ್ವೇಕ್ಷಣಾ ಇಲಾಖೆ (ASI) ದೃಢೀಕೃತ ದಾಖಲೆಗಳು, ಮಲೆನಾಡಿನ ಘಾಟ್ ಸಂಚಾರ ಅಲ್ಗಾರಿದಮ್‌ಗಳು ಮತ್ತು ಕನ್ನಡ ಧ್ವನಿ ಸಹಾಯಕದೊಂದಿಗೆ ಸೃಷ್ಟಿಯಾದ ನೈಜ ಪ್ರವಾಸ ತಂತ್ರಜ್ಞಾನ."
+              : "From the thunderous cascades of Jog Falls to the royal grandeur of Mysuru Dasara and the UNESCO boulders of Hampi — experience a deterministic, culturally authentic AI companion engineered for Karnataka."}
           </p>
 
           {/* Hero CTAs */}
@@ -205,7 +313,7 @@ export default function Home() {
 
             <Link
               to="/assistant"
-              className="px-5 py-3.5 bg-black/30 hover:bg-black/50 text-white font-semibold text-sm rounded-xl border border-white/20 backdrop-blur-md transition-all flex items-center space-x-2"
+              className="px-5 py-3.5 bg-black/40 hover:bg-black/60 text-white font-semibold text-sm rounded-xl border border-white/20 backdrop-blur-md transition-all flex items-center space-x-2"
             >
               <Mic className="w-4 h-4 text-gold" />
               <span>{language === "kn" ? "ಧ್ವನಿ ಸಹಾಯಕ" : "AI Travel Assistant"}</span>
@@ -273,7 +381,80 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. Quick Search / Trip Launcher Card */}
+      {/* 3. Soul of Karnataka: Culture, Traditions & Heritage Section */}
+      <section className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between">
+          <div>
+            <span className="text-xs uppercase font-bold text-gold tracking-widest block mb-1">
+              {language === "kn" ? "ಕರ್ನಾಟಕದ ಹೆಮ್ಮೆ" : "Cultural Tapestry"}
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-charcoal tracking-tight">
+              {language === "kn"
+                ? "ಕರ್ನಾಟಕದ ಜೀವಂತ ಸಂಸ್ಕೃತಿ ಮತ್ತು ಸಂಪ್ರದಾಯಗಳು"
+                : "Soul of Karnataka: Living Culture, Traditions & Heritage"}
+            </h2>
+            <p className="text-xs sm:text-sm text-charcoal/70 max-w-2xl mt-1">
+              Immerse yourself in centuries of performing arts, sacred ecology, royal celebrations, and architectural marvels.
+            </p>
+          </div>
+          <Link
+            to="/explore?category=heritage"
+            className="text-xs font-semibold text-forest hover:text-gold flex items-center space-x-1 mt-2 sm:mt-0"
+          >
+            <span>Explore Cultural Routes</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {culturalTraditions.map((item) => (
+            <div
+              key={item.id}
+              className="bg-white rounded-2xl overflow-hidden shadow-xs hover:shadow-lg transition-all border border-stone-200 flex flex-col justify-between group"
+            >
+              <div>
+                <div className="relative h-44 overflow-hidden">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                  <span className="absolute top-3 left-3 bg-forest/90 text-gold text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border border-gold/30">
+                    {item.badge}
+                  </span>
+                  <div className="absolute bottom-2.5 left-3 right-3 text-white">
+                    <span className="text-[10px] text-gold font-semibold uppercase tracking-wider block">
+                      {item.region}
+                    </span>
+                    <h3 className="text-base font-bold leading-tight">{item.title}</h3>
+                    <p className="text-xs text-stone-300 font-kannada">{item.kn}</p>
+                  </div>
+                </div>
+
+                <div className="p-4 space-y-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-forest block">
+                    {item.category}
+                  </span>
+                  <p className="text-xs text-charcoal/80 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+
+              <div className="p-4 pt-0">
+                <Link
+                  to={`/planner?origin=bengaluru&days=3&interest=heritage`}
+                  className="w-full py-2 bg-stone-50 hover:bg-forest hover:text-gold text-forest text-xs font-semibold rounded-lg border border-stone-200 transition-colors flex items-center justify-center space-x-1.5"
+                >
+                  <span>Experience in Itinerary</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 4. Quick Search / Trip Launcher Card */}
       <section className="relative z-20 max-w-5xl mx-auto px-4">
         <form
           onSubmit={handleQuickPlan}
@@ -342,7 +523,7 @@ export default function Home() {
         </form>
       </section>
 
-      {/* 4. Discover by Mood */}
+      {/* 5. Discover by Mood */}
       <section className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between">
           <div>
@@ -398,7 +579,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. Featured Destinations */}
+      {/* 6. Featured Destinations */}
       <section className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between">
           <div>
@@ -464,7 +645,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. Spotlight Modules: AI Webstrapping Studio & Taste Karnataka */}
+      {/* 7. Spotlight Modules: AI Webstrapping Studio & Taste Karnataka */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Webstrapping Studio Card */}
         <div className="bg-gradient-to-br from-forest to-forest/90 rounded-2xl p-6 text-ivory border border-gold/40 shadow-lg flex flex-col justify-between space-y-4">
@@ -509,7 +690,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Distinct Regions Grid */}
+      {/* 8. Distinct Regions Grid */}
       <section className="space-y-6">
         <div>
           <span className="text-xs uppercase font-bold text-gold tracking-widest block mb-1">
