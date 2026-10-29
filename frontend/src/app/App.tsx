@@ -15,6 +15,9 @@ import BudgetDashboard from "../pages/BudgetDashboard";
 import Assistant from "../pages/Assistant";
 import MyTrips from "../pages/MyTrips";
 import Admin from "../pages/Admin";
+import WebstrappingStudio from "../pages/WebstrappingStudio";
+import FoodExplorer from "../pages/FoodExplorer";
+import TransportExplorer from "../pages/TransportExplorer";
 
 export default function App() {
   return (
@@ -33,6 +36,11 @@ export default function App() {
               <Route path="/assistant" element={<Assistant />} />
               <Route path="/trips" element={<MyTrips />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/webstrapping" element={<WebstrappingStudio />} />
+              <Route path="/ai-webstrapping" element={<WebstrappingStudio />} />
+              <Route path="/food" element={<FoodExplorer />} />
+              <Route path="/transport" element={<TransportExplorer />} />
+              <Route path="/stays" element={<TransportExplorer />} />
             </Routes>
           </main>
           <Footer />

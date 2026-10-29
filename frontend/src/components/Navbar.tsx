@@ -15,7 +15,10 @@ import {
   Globe,
   Menu,
   X,
-  Sparkles
+  Sparkles,
+  Utensils,
+  Terminal,
+  Bus
 } from "lucide-react";
 
 export const Navbar: React.FC = () => {
@@ -28,10 +31,12 @@ export const Navbar: React.FC = () => {
     { to: "/", label: t("nav_home"), icon: Compass },
     { to: "/planner", label: t("nav_plan"), icon: Calendar },
     { to: "/explore", label: t("nav_explore"), icon: Layers },
+    { to: "/food", label: language === "kn" ? "ಆಹಾರ ಮತ್ತು ಸಂಸ್ಕೃತಿ" : "Taste Karnataka", icon: Utensils },
     { to: "/map", label: t("nav_map"), icon: Map },
-    { to: "/budget", label: t("nav_budget"), icon: PieChart },
     { to: "/assistant", label: t("nav_assistant"), icon: MessageSquare },
-    { to: "/trips", label: t("nav_my_trips"), icon: BookmarkCheck },
+    { to: "/webstrapping", label: "AI Webstrapping Studio", icon: Terminal, highlight: true },
+    { to: "/transport", label: language === "kn" ? "ಸಾರಿಗೆ ಮತ್ತು ವಾಸ್ತವ್ಯ" : "Transit & Stays", icon: Bus },
+    { to: "/budget", label: t("nav_budget"), icon: PieChart },
     { to: "/admin", label: t("nav_admin"), icon: ShieldAlert },
   ];
 
@@ -54,17 +59,17 @@ export const Navbar: React.FC = () => {
               <Compass className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xl font-bold tracking-tight block leading-tight text-ivory">
+              <span className="text-lg sm:text-xl font-bold tracking-tight block leading-tight text-ivory">
                 {language === "kn" ? "ಕರ್ನಾಟಕ ಯಾತ್ರಾ AI" : "Karnataka Yatra AI"}
               </span>
-              <span className="text-[10px] text-gold/80 block uppercase tracking-widest font-semibold">
+              <span className="text-[10px] text-gold/90 block uppercase tracking-widest font-semibold">
                 Smarter Regional Travel
               </span>
             </div>
           </Link>
 
           {/* Desktop Nav Items */}
-          <nav className="hidden lg:flex items-center space-x-1" aria-label="Main Navigation">
+          <nav className="hidden xl:flex items-center space-x-0.5" aria-label="Main Navigation">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.to);
@@ -72,13 +77,15 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`flex items-center space-x-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all ${
-                    active
-                      ? "bg-forest/80 text-gold border-b-2 border-gold shadow-inner"
+                  className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                    item.highlight
+                      ? "bg-gold/20 text-gold border border-gold/40 hover:bg-gold/30"
+                      : active
+                      ? "bg-white/15 text-gold border-b-2 border-gold shadow-inner"
                       : "text-ivory/80 hover:text-white hover:bg-white/10"
                   }`}
                 >
-                  <Icon className="w-4 h-4 opacity-80" />
+                  <Icon className="w-3.5 h-3.5 opacity-80" />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -86,7 +93,7 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Right Action Bar */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             {/* Active Trip Badge */}
             {currentPlan && (
               <Link
@@ -96,7 +103,7 @@ export const Navbar: React.FC = () => {
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span className="font-semibold">
-                  {currentPlan.duration_days}d Plan Active
+                  {currentPlan.duration_days}d Active
                 </span>
               </Link>
             )}
@@ -104,17 +111,17 @@ export const Navbar: React.FC = () => {
             {/* Language Toggle Button */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center space-x-1.5 bg-black/20 hover:bg-black/40 border border-white/20 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all text-ivory focus:ring-2 focus:ring-gold"
+              className="flex items-center space-x-1.5 bg-black/25 hover:bg-black/40 border border-white/20 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all text-ivory focus:ring-2 focus:ring-gold"
               aria-label="Toggle language between English and Kannada"
             >
               <Globe className="w-3.5 h-3.5 text-gold" />
-              <span>{language === "en" ? "ಕನ್ನಡ" : "English"}</span>
+              <span>{language === "en" ? "ಕನ್ನಡ" : "EN"}</span>
             </button>
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden p-2 rounded-md text-ivory hover:bg-white/10 focus:outline-none"
+              className="xl:hidden p-2 rounded-md text-ivory hover:bg-white/10 focus:outline-none"
               aria-label="Toggle mobile menu"
             >
               {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -125,7 +132,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="lg:hidden bg-forest/98 border-t border-white/10 px-4 pt-2 pb-6 space-y-1">
+        <div className="xl:hidden bg-forest/98 border-t border-white/10 px-4 pt-2 pb-6 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.to);
@@ -134,11 +141,15 @@ export const Navbar: React.FC = () => {
                 key={item.to}
                 to={item.to}
                 onClick={() => setMobileOpen(false)}
-                className={`flex items-center space-x-3 px-3 py-2.5 rounded-md text-base font-medium ${
-                  active ? "bg-white/15 text-gold font-semibold" : "text-ivory/90 hover:bg-white/10"
+                className={`flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium ${
+                  item.highlight
+                    ? "bg-gold/20 text-gold font-bold"
+                    : active
+                    ? "bg-white/15 text-gold font-semibold"
+                    : "text-ivory/90 hover:bg-white/10"
                 }`}
               >
-                <Icon className="w-5 h-5 text-gold" />
+                <Icon className="w-4 h-4 text-gold" />
                 <span>{item.label}</span>
               </Link>
             );
